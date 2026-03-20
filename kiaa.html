@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiaa Cute Shrine 🩷</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Quicksand', sans-serif;
+        }
+        #viewport {
+            width: 100vw;
+            height: 56.25vw; 
+            max-height: 100vh;
+            max-width: 177.78vh;
+            position: relative;
+            overflow: hidden;
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #video-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            opacity: 0.5;
+        }
+
+        /* --- KOTAK PINK TEMBUS PANDANG (GLASS) --- */
+        #lyric-container {
+            z-index: 20;
+            background: rgba(255, 182, 193, 0.45); /* Pink Transparan */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 25px 50px;
+            border-radius: 25px;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            text-align: center;
+            color: white;
+            min-width: 450px;
+            max-width: 80%;
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+        }
+        #lyric-text {
+            font-size: 2.8vw;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        /* Polaroid Frames */
+        .photo-frame {
+            position: absolute;
+            background-color: white;
+            padding: 10px;
+            padding-bottom: 55px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 15;
+        }
+        .top-right { top: 8%; right: 6%; transform: rotate(5deg); }
+        .bottom-left { bottom: 8%; left: 6%; transform: rotate(-5deg); }
+        .img-box {
+            width: 170px;
+            height: 170px;
+            background-size: cover;
+            background-position: center;
+        }
+        .date-label {
+            position: absolute; bottom: 18px; width: 100%; left: 0;
+            text-align: center; font-weight: bold; color: #555; font-size: 0.9rem;
+        }
+
+        /* Hiasan */
+        .pita {
+            position: absolute; top: -15px; left: 50%;
+            transform: translateX(-50%) rotate(-5deg);
+            width: 85px; height: 30px;
+            background-color: rgba(173, 216, 230, 0.85); /* Pita Biru */
+            z-index: 16;
+        }
+        .red-love {
+            position: absolute; bottom: 12px; right: 12px;
+            font-size: 1.8rem; color: #ff0000; z-index: 16;
+        }
+
+        /* Teks Tambahan */
+        #top-left-deco { position: absolute; top: 25px; left: 25px; font-size: 1.8rem; z-index: 30; }
+        #bottom-right-by { position: absolute; bottom: 25px; right: 25px; color: #fff; font-size: 1.1rem; font-style: italic; z-index: 30; opacity: 0.8; }
+
+        /* Emote Hujan */
+        .emote {
+            position: absolute; top: -50px; z-index: 10;
+            animation: fall linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        /* Tombol Start */
+        #overlay {
+            position: absolute; inset: 0; background: #000;
+            z-index: 100; display: flex; justify-content: center; align-items: center;
+        }
+        button {
+            padding: 20px 50px; font-size: 1.3rem; font-weight: bold;
+            cursor: pointer; border-radius: 50px; border: none; background: white;
+            transition: 0.3s;
+        }
+        button:hover { transform: scale(1.1); background: #ffd1dc; }
+    </style>
+</head>
+<body>
+
+    <div id="viewport">
+        <div id="overlay">
+            <button onclick="startApp()">KLIK KIAA CANTIK😹💖</button>
+        </div>
+
+        <div id="top-left-deco">🐱🌸🎀</div>
+        <div id="bottom-right-by">—kiaaà</div>
+
+        <video id="video-bg" loop muted playsinline>
+            <source src="kucing.mp4" type="video/mp4">
+        </video>
+
+        <audio id="bg-music">
+            <source src="kamucantik.mp3" type="audio/mpeg">
+        </audio>
+
+        <div class="photo-frame top-right">
+            <div class="pita"></div>
+            <div class="img-box" style="background-image: url('kiaacantik.jpg');"></div>
+            <div class="date-label">20 Maret 2026</div>
+        </div>
+
+        <div class="photo-frame bottom-left">
+            <div class="red-love">❤️</div>
+            <div class="img-box" style="background-image: url('kiaaimut.jpg');"></div>
+            <div class="date-label">20 Maret 2026</div>
+        </div>
+
+        <div id="lyric-container">
+            <p id="lyric-text"></p>
+        </div>
+
+        <div id="rain-layer"></div>
+    </div>
+
+    <script>
+        // Timing Lirik (diatur supaya pas sama lagu di video)
+        const lyrics = [
+            { t: "Sempurnalah duniaku saat kau di sisiku", d: 4700 },
+            { t: "Kar'na kamu cantik", d: 3100 },
+            { t: "'Kan kuberi s'galanya apa yang kupunya", d: 4250 },
+            { t: "Dan hatimu baik", d: 2100 },
+            { t: "Sempurnalah duniaku saat kau di sisiku..", d: 5000 }
+        ];
+
+        let rainInterval;
+
+        function startApp() {
+            document.getElementById('overlay').style.display = 'none';
+            const music = document.getElementById('bg-music');
+            const video = document.getElementById('video-bg');
+            
+            video.play();
+            music.play();
+            
+            let i = 0;
+            const textEl = document.getElementById('lyric-text');
+
+            function showNext() {
+                if (i < lyrics.length) {
+                    textEl.textContent = lyrics[i].t;
+                    setTimeout(() => {
+                        i++;
+                        showNext();
+                    }, lyrics[i].d);
+                } else {
+                    textEl.textContent = "";
+                    music.pause();
+                    video.pause();
+                    clearInterval(rainInterval);
+                }
+            }
+
+            showNext();
+            rainInterval = setInterval(createEmote, 250);
+        }
+
+        function createEmote() {
+            const container = document.getElementById('rain-layer');
+            const e = document.createElement('div');
+            const types = ["🩷", "🩵", "🩶"];
+            e.className = 'emote';
+            e.innerText = types[Math.floor(Math.random() * 3)];
+            e.style.left = Math.random() * 100 + "%";
+            e.style.fontSize = (Math.random() * 15 + 15) + "px";
+            e.style.animationDuration = (Math.random() * 2 + 3) + "s";
+            container.appendChild(e);
+            setTimeout(() => e.remove(), 5000);
+        }
+    </script>
+</body>
+</html>
